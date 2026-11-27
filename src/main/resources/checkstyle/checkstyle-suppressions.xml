@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<!--
+    Javadoc obligatorio (MissingJavadocType / MissingJavadocMethod) solo en la
+    superficie publica del microservicio: los puertos de entrada/salida
+    (application/port/...) y los controllers REST (infrastructure/adapter/in/rest/controller/...).
+    El resto de capas (domain, implementacion de los servicios, mappers,
+    adaptadores de salida, config, DTOs, la clase *Application) quedan exentas:
+    son detalles internos, no el contrato publico del servicio.
+-->
+<suppressions>
+    <suppress checks="MissingJavadocType|MissingJavadocMethod"
+              files="[\\/]domain[\\/]"/>
+    <suppress checks="MissingJavadocType|MissingJavadocMethod"
+              files="[\\/]application[\\/](?!port[\\/])"/>
+    <suppress checks="MissingJavadocType|MissingJavadocMethod"
+              files="[\\/]infrastructure[\\/](?!adapter[\\/]in[\\/]rest[\\/]controller[\\/])"/>
+    <suppress checks="MissingJavadocType|MissingJavadocMethod"
+              files=".*Application\.java$"/>
+</suppressions>

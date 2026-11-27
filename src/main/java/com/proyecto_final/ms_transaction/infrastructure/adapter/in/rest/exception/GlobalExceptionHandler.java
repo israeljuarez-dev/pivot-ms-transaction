@@ -1,6 +1,16 @@
 package com.proyecto_final.ms_transaction.infrastructure.adapter.in.rest.exception;
 
-import com.proyecto_final.ms_transaction.domain.exception.*;
+// MODIFICADO: se reemplazó el import con comodín (domain.exception.*) por imports explícitos
+import com.proyecto_final.ms_transaction.domain.exception.AccountNotFoundException;
+import com.proyecto_final.ms_transaction.domain.exception.ConcurrentBalanceUpdateException;
+import com.proyecto_final.ms_transaction.domain.exception.ConsumptionNotAllowedException;
+import com.proyecto_final.ms_transaction.domain.exception.CreditLimitExceededException;
+import com.proyecto_final.ms_transaction.domain.exception.CreditNotFoundException;
+import com.proyecto_final.ms_transaction.domain.exception.InsufficientFundsException;
+import com.proyecto_final.ms_transaction.domain.exception.MonthlyMovementLimitExceededException;
+import com.proyecto_final.ms_transaction.domain.exception.MovementDayNotAllowedException;
+import com.proyecto_final.ms_transaction.domain.exception.PaymentExceedsDebtException;
+import com.proyecto_final.ms_transaction.domain.exception.ProductServiceUnavailableException;
 import com.proyecto_final.ms_transaction.infrastructure.adapter.in.rest.dto.response.ErrorResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

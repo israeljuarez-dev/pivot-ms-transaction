@@ -52,7 +52,8 @@ public class AccountMovementGuard {
         Instant monthStart = currentMonth.atDay(1).atStartOfDay(clock.getZone()).toInstant();
         Instant nextMonthStart = currentMonth.plusMonths(1).atDay(1).atStartOfDay(clock.getZone()).toInstant();
 
-        return movementRepositoryPort.countByProductBetween(ProductCategoryEnum.ACCOUNT, account.id(), monthStart, nextMonthStart)
+        return movementRepositoryPort
+                .countByProductBetween(ProductCategoryEnum.ACCOUNT, account.id(), monthStart, nextMonthStart)
                 .doOnSuccess(movementsThisMonth ->
                         accountMovementRulesValidator.validateMonthlyLimit(account, movementsThisMonth)
                 )
