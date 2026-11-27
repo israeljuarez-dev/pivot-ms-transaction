@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
+
 /**
  * Implementa el puerto de salida de movimientos sobre Spring Data MongoDB.
  */
@@ -50,11 +51,18 @@ public class MovementRepositoryAdapter implements MovementRepositoryPort {
             Instant from,
             Instant to
     ) {
-        return movementRepository.countByProductCategoryAndProductIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
-                productCategory,
-                productId,
-                from,
-                to
-        );
+        // Spring Data MongoDB no permite derivar por nombre dos restricciones sobre
+        // la misma propiedad (createdAt >= from AND createdAt < to), así que el conteo
+        // se hace en memoria filtrando el historial del producto.
+        return movementRepository.findByProductCategoryAndProductIdOrderByCreatedAtDesc(productCategory, productId)
+                .filter(movement -> isWithinRange(movement.getCreatedAt(), from, to))
+                .count();
+    }
+
+    /**
+     * Indica si una fecha cae dentro del rango [from, to), igual que $gte/$lt en Mongo.
+     */
+    private boolean isWithinRange(Instant createdAt, Instant from, Instant to) {
+        return !createdAt.isBefore(from) && createdAt.isBefore(to);
     }
 }
