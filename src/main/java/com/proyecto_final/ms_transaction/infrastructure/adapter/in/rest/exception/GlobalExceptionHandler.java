@@ -1,6 +1,5 @@
 package com.proyecto_final.ms_transaction.infrastructure.adapter.in.rest.exception;
 
-// MODIFICADO: se reemplazó el import con comodín (domain.exception.*) por imports explícitos
 import com.proyecto_final.ms_transaction.domain.exception.AccountNotFoundException;
 import com.proyecto_final.ms_transaction.domain.exception.ConcurrentBalanceUpdateException;
 import com.proyecto_final.ms_transaction.domain.exception.ConsumptionNotAllowedException;
@@ -12,6 +11,7 @@ import com.proyecto_final.ms_transaction.domain.exception.MovementDayNotAllowedE
 import com.proyecto_final.ms_transaction.domain.exception.PaymentExceedsDebtException;
 import com.proyecto_final.ms_transaction.domain.exception.ProductServiceUnavailableException;
 import com.proyecto_final.ms_transaction.infrastructure.adapter.in.rest.dto.response.ErrorResponseDto;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -72,11 +72,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * ms-account o ms-credit no disponibles: 503.
+     * ms-account o ms-credit no disponibles (caídos, timeout o circuit breaker abierto): 503.
      */
     @ExceptionHandler(ProductServiceUnavailableException.class)
     public ResponseEntity<ErrorResponseDto> handleServiceUnavailable(ProductServiceUnavailableException exception) {
         return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage(), List.of());
+    }
+
+    /**
+     * límite de tasa (rate limit) excedido al consultar ms-account o ms-credit: 429.
+     */
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ErrorResponseDto> handleRateLimitExceeded(RequestNotPermitted exception) {
+        log.warn("Rate limit exceeded: {}", exception.getMessage());
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, "Too many requests, try again later", List.of());
     }
 
     /**
@@ -129,8 +138,7 @@ public class GlobalExceptionHandler {
                 Instant.now(clock),
                 status.value(),
                 status.getReasonPhrase(),
-                message, details
-        );
+                message, details);
         return ResponseEntity.status(status).body(body);
     }
 }
